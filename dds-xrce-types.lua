@@ -28,10 +28,31 @@ local object_topic_names = {}
 function dds_xrce_types_init(track, deserialize)
     track_objects = track
     deserialize_types = deserialize
+end
 
-    object_id = 0
-    object_profile_names = {}
-    object_topic_names = {}
+function dds_xrce_types_menu(group)
+    local function reset_objects()
+        object_id = 0
+        object_profile_names = {}
+        object_topic_names = {}
+
+        redissect_packets()
+    end
+    register_menu("DDS-XRCE/Reset objects", reset_objects, group)
+
+    local function set_object()
+        local function action(id, profile_name, topic_name)
+            if profile_name ~= nil and profile_name ~= "" then
+                object_profile_names[tonumber(id)] = profile_name
+            end
+            if topic_name ~= nil and topic_name ~= "" then
+                object_topic_names[tonumber(id)] = topic_name
+            end
+            redissect_packets()
+        end
+        new_dialog("Set object", action, {name = "ID", value = "0x0000"}, "profile", "topic")
+    end
+    register_menu("DDS-XRCE/Set object...", set_object, group)
 end
 
 local XML_PROFILE_NAME_PATTERN = "%s+profile_name%s*=%s*\"([^\"]*)\""

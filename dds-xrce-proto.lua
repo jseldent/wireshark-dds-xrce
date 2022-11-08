@@ -435,3 +435,7 @@ end
 DissectorTable.get("tcp.port"):add_for_decode_as(p_dds_xrce)
 DissectorTable.get("udp.port"):add_for_decode_as(p_dds_xrce)
 DissectorTable.get("can.subdissector"):add_for_decode_as(p_dds_xrce)
+
+if gui_enabled() then
+    dds_xrce_types_menu(MENU_TOOLS_UNSORTED)
+end
