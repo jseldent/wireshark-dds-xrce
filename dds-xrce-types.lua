@@ -24,14 +24,54 @@ local deserialize_types = true
 local object_id = 0
 local object_profile_names = {}
 local object_topic_names = {}
+local object_type_names = {}
 
 function dds_xrce_types_init(track, deserialize)
     track_objects = track
     deserialize_types = deserialize
+end
 
-    object_id = 0
-    object_profile_names = {}
-    object_topic_names = {}
+function dds_xrce_types_menu(group)
+    local function reset_objects()
+        object_id = 0
+        object_profile_names = {}
+        object_topic_names = {}
+        object_type_names = {}
+
+        redissect_packets()
+    end
+    register_menu("DDS-XRCE/Reset objects", reset_objects, group)
+
+    local function set_object()
+        local function action(id, profile_name, topic_name, type_name)
+            if profile_name ~= nil and profile_name ~= "" then
+                object_profile_names[tonumber(id)] = profile_name
+            end
+            if topic_name ~= nil and topic_name ~= "" then
+                object_topic_names[tonumber(id)] = topic_name
+            end
+            if type_name ~= nil and type_name ~= "" then
+                object_type_names[tonumber(id)] = type_name
+            end
+            redissect_packets()
+        end
+        local id = string.format("0x%04X", object_id)
+        local profile_name = object_profile_names[object_id]
+        local topic_name = object_topic_names[object_id]
+        local type_name = object_type_names[object_id]
+        if type_name == nil and topic_name ~= nil then
+            type_name = topic_type_names[topic_name]
+        end
+        new_dialog(
+            "Set object",
+            action,
+            {name = "ID", value = id},
+            {name = "profile", value = profile_name},
+            {name = "topic", value = topic_name},
+            {name = "type", value = type_name}
+        )
+    end
+    register_menu("DDS-XRCE/Set object...", set_object, group)
 end
 
 local XML_PROFILE_NAME_PATTERN = "%s+profile_name%s*=%s*\"([^\"]*)\""
@@ -83,12 +123,15 @@ local function ObjectId_deserialize(tvb, offset, encoding, tree, label)
             subtree:add("profile:", profile_name):set_generated(true)
         end
         local topic_name = object_topic_names[id]
+        local type_name = object_type_names[id]
         if topic_name ~= nil then
             subtree:add("topic:", topic_name):set_generated(true)
-            local type_name = topic_type_names[topic_name]
-            if type_name ~= nil then
-                subtree:add("type:", type_name):set_generated(true)
+            if type_name == nil then
+                type_name = topic_type_names[topic_name]
             end
+        end
+        if type_name ~= nil then
+            subtree:add("type:", type_name):set_generated(true)
         end
     end
     offset = offset + 2
@@ -1168,8 +1211,8 @@ local function SampleInfoDelta_deserialize(tvb, offset, encoding, tree, label)
 end
 
 local function SampleData_deserialize(tvb, offset, encoding, tree, label)
-    local type_name = nil
-    if track_objects then
+    local type_name = object_type_names[object_id]
+    if type_name == nil and track_objects then
         local topic_name = object_topic_names[object_id]
         if topic_name ~= nil then
             type_name = topic_type_names[topic_name]
