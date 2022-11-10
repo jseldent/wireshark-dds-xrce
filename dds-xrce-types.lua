@@ -55,7 +55,21 @@ function dds_xrce_types_menu(group)
             end
             redissect_packets()
         end
-        new_dialog("Set object", action, {name = "ID", value = "0x0000"}, "profile", "topic", "type")
+        local id = string.format("0x%04X", object_id)
+        local profile_name = object_profile_names[object_id]
+        local topic_name = object_topic_names[object_id]
+        local type_name = object_type_names[object_id]
+        if type_name == nil and topic_name ~= nil then
+            type_name = topic_type_names[topic_name]
+        end
+        new_dialog(
+            "Set object",
+            action,
+            {name = "ID", value = id},
+            {name = "profile", value = profile_name},
+            {name = "topic", value = topic_name},
+            {name = "type", value = type_name}
+        )
     end
     register_menu("DDS-XRCE/Set object...", set_object, group)
 end
