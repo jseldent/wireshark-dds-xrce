@@ -14,6 +14,13 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
+set_plugin_info({
+    version = "1.0.0",
+    description = "DDS-XRCE Protocol dissector",
+    author = "J. S. Seldenthuis <jseldenthuis@lely.com>",
+    repository = "https://github.com/jseldent/wireshark-dds-xrce"
+})
+
 require "dds-xrce-types"
 
 local p_dds_xrce = Proto("DDS-XRCE", "DDS for eXtremely Resource Constrained Environments")
