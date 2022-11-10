@@ -177,7 +177,7 @@ function string_deserialize(tvb, offset, encoding, tree, label)
 
     local size = tvb_uint(tvb(offset, 4), encoding)
     offset = offset + 4
-    tree:add(tvb(offset, size), label, tvb(offset, size):stringz())
+    tree:add(tvb(offset, size), label, string.format("\"%s\"", tvb(offset, size):stringz()))
     offset = offset + size
 
     return offset
