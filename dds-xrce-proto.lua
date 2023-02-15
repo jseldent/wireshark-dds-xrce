@@ -14,6 +14,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
+assert (redissect_packets, "This dissector (DDS-XRCE) requires Wireshark 3.5.0 or newer.")
+
 set_plugin_info({
     version = "1.0.0",
     description = "DDS-XRCE Protocol dissector",
